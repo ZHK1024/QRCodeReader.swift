@@ -31,7 +31,7 @@ import UIKit
  The QRCodeViewControllerBuilder aims to create a simple configuration object for
  the QRCode view controller.
  */
-public final class QRCodeReaderViewControllerBuilder {
+open class QRCodeReaderViewControllerBuilder {
   // MARK: - Configuring the QRCodeViewController Objects
 
   /**

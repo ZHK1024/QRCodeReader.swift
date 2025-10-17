@@ -28,7 +28,7 @@ import UIKit
 
 /// The toggle torch button.
 @IBDesignable
-public final class ToggleTorchButton: UIButton {
+open class ToggleTorchButton: UIButton {
   @IBInspectable var edgeColor: UIColor = UIColor.white {
     didSet {
       setNeedsDisplay()

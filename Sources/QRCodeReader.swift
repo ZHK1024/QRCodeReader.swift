@@ -27,7 +27,7 @@
 import UIKit
 import AVFoundation
 
-protocol QRCodeReaderLifeCycleDelegate: class {
+protocol QRCodeReaderLifeCycleDelegate: AnyObject {
   func readerDidStartScanning()
   func readerDidStopScanning()
 }
