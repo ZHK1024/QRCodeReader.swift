@@ -101,14 +101,29 @@ open class QRCodeReaderViewControllerBuilder {
      Specifies a rectangle of interest for limiting the search area for visual metadata.
      
      The value of this property is a CGRect that determines the receiver's rectangle of interest for each frame of video. The rectangle's origin is top left and is relative to the coordinate space of the device providing the metadata. Specifying a rectOfInterest may improve detection performance for certain types of metadata. The default value of this property is the value CGRectMake(0, 0, 1, 1). Metadata objects whose bounds do not intersect with the rectOfInterest will not be returned.
+     
+     Note: This property expects values in UIKit coordinate system (portrait mode, 0,0 at top-left).
+     The actual conversion to AVFoundation coordinate system will be handled internally.
      */
     public var rectOfInterest: CGRect = CGRect(x: 0, y: 0, width: 1, height: 1) {
         didSet {
-            reader.metadataOutput.rectOfInterest = CGRect(
+            // Clamp values to 0-1 range
+            let clampedRect = CGRect(
                 x: min(max(rectOfInterest.origin.x, 0), 1),
                 y: min(max(rectOfInterest.origin.y, 0), 1),
                 width: min(max(rectOfInterest.width, 0), 1),
                 height: min(max(rectOfInterest.height, 0), 1)
+            )
+            
+            // Convert from UIKit coordinate system (portrait) to AVFoundation coordinate system (landscape)
+            // AVFoundation uses a coordinate system where:
+            // - Origin is at top-left in landscape right orientation
+            // - For portrait: x maps to y, y maps to (1-x-width)
+            reader.metadataOutput.rectOfInterest = CGRect(
+                x: clampedRect.origin.y,
+                y: 1 - clampedRect.origin.x - clampedRect.width,
+                width: clampedRect.height,
+                height: clampedRect.width
             )
         }
     }
