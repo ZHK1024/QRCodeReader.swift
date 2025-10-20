@@ -47,9 +47,11 @@ open class ReaderOverlayView: UIView {
   private var overlay: CAShapeLayer = {
     var overlay             = CAShapeLayer()
     overlay.backgroundColor = UIColor.clear.cgColor
-    overlay.fillColor       = UIColor.clear.cgColor
-    overlay.strokeColor     = UIColor.white.cgColor
-    overlay.lineWidth       = 3
+    overlay.fillColor       = UIColor.black.withAlphaComponent(0.5).cgColor
+    // Use even-odd fill rule so appended inner path creates a hole
+    overlay.fillRule        = .evenOdd
+    overlay.strokeColor     = UIColor.clear.cgColor
+    overlay.lineWidth       = 0
     overlay.lineDashPattern = [7.0, 7.0]
     overlay.lineDashPhase   = 0
 
@@ -112,7 +114,37 @@ open class ReaderOverlayView: UIView {
       height: rect.height * rectOfInterest.height
     )
 
-    overlay.path = UIBezierPath(roundedRect: innerRect, cornerRadius: 5).cgPath
+      overlay.path = createRingBezierPath(outerRect: bounds, innerRect: innerRect).cgPath
+  }
+    
+
+
+  /// 生成环状贝塞尔路径（外部矩形减去内部矩形，确保挖空）
+  /// - Parameters:
+  ///   - outerRect: 外部矩形（整体范围）
+  ///   - innerRect: 要挖空的内部矩形（如果不在外部矩形内，会取交集）
+  /// - Returns: 环状贝塞尔路径
+  func createRingBezierPath(outerRect: CGRect, innerRect: CGRect) -> UIBezierPath {
+    // Create the outer path that covers the whole area
+    let outerPath = UIBezierPath(rect: outerRect)
+
+    // Compute the effective hole rect as the intersection of innerRect and outerRect
+    let holeRect = outerRect.intersection(innerRect)
+
+    // If there is no valid intersection (empty or null), just return the outer path
+    if holeRect.isNull || holeRect.isEmpty {
+      outerPath.usesEvenOddFillRule = true
+      return outerPath
+    }
+
+    // Create the inner path (the hole). Append its reversed path to ensure proper winding
+    let innerPath = UIBezierPath(rect: holeRect)
+    outerPath.append(innerPath.reversing())
+
+    // Use even-odd so the inner subpath creates a hole
+    outerPath.usesEvenOddFillRule = true
+
+    return outerPath
   }
 }
 
