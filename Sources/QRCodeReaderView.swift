@@ -46,13 +46,30 @@ open class QRCodeReaderView: UIView, QRCodeReaderDisplayable {
         return cv
     }()
     
-    public lazy var cancelButton: UIButton? = {
-        let cb = UIButton()
+    public lazy var titleLabel: UILabel? = {
+        let tl = UILabel()
         
-        cb.translatesAutoresizingMaskIntoConstraints = false
-        cb.setTitleColor(.gray, for: .highlighted)
+        tl.translatesAutoresizingMaskIntoConstraints = false
+        tl.textAlignment                              = .center
+        tl.textColor                                  = .white
+        tl.font                                       = UIFont.boldSystemFont(ofSize: 17)
         
-        return cb
+        return tl
+    }()
+    
+    public lazy var backButton: UIButton? = {
+        let bb = UIButton()
+        
+        bb.translatesAutoresizingMaskIntoConstraints = false
+        
+        if #available(iOS 13.0, *) {
+            let config = UIImage.SymbolConfiguration(pointSize: 28, weight: .regular)
+            let image = UIImage(systemName: "chevron.left.circle.fill", withConfiguration: config)
+            bb.setImage(image, for: .normal)
+            bb.tintColor = .white
+        }
+        
+        return bb
     }()
     
     public lazy var switchCameraButton: UIButton? = {
@@ -79,33 +96,89 @@ open class QRCodeReaderView: UIView, QRCodeReaderDisplayable {
         
         addComponents()
         
-        cancelButton?.isHidden       = !builder.showCancelButton
+        titleLabel?.isHidden         = !builder.showTitle
+        backButton?.isHidden         = !builder.showBackButton
         switchCameraButton?.isHidden = !builder.showSwitchCameraButton
         toggleTorchButton?.isHidden  = !builder.showTorchButton
         overlayView?.isHidden        = !builder.showOverlayView
         
-        guard let cb = cancelButton, let scb = switchCameraButton, let ttb = toggleTorchButton, let ov = overlayView else { return }
+        if builder.showTitle {
+            titleLabel?.text = builder.titleText
+        }
         
-        let views = ["cv": cameraView, "ov": ov, "cb": cb, "scb": scb, "ttb": ttb]
+        guard let scb = switchCameraButton, let ttb = toggleTorchButton, let ov = overlayView else { return }
+        
+        let views: [String: Any] = ["cv": cameraView, "ov": ov, "scb": scb, "ttb": ttb]
         
         addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "H:|[cv]|", options: [], metrics: nil, views: views))
+        addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|[cv]|", options: [], metrics: nil, views: views))
         
-        if builder.showCancelButton {
-            addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|[cv][cb(40)]|", options: [], metrics: nil, views: views))
-            addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "H:|-[cb]-|", options: [], metrics: nil, views: views))
-        }
-        else {
-            addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|[cv]|", options: [], metrics: nil, views: views))
+        // Setup title label with safe area
+        if builder.showTitle, let tl = titleLabel {
+            if #available(iOS 11.0, *) {
+                NSLayoutConstraint.activate([
+                    tl.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 8),
+                    tl.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor),
+                    tl.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor),
+                    tl.heightAnchor.constraint(equalToConstant: 44)
+                ])
+            } else {
+                NSLayoutConstraint.activate([
+                    tl.topAnchor.constraint(equalTo: topAnchor, constant: 20),
+                    tl.leadingAnchor.constraint(equalTo: leadingAnchor),
+                    tl.trailingAnchor.constraint(equalTo: trailingAnchor),
+                    tl.heightAnchor.constraint(equalToConstant: 44)
+                ])
+            }
         }
         
+        // Setup back button with safe area
+        if builder.showBackButton, let bb = backButton {
+            if #available(iOS 11.0, *) {
+                NSLayoutConstraint.activate([
+                    bb.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 8),
+                    bb.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 16),
+                    bb.widthAnchor.constraint(equalToConstant: 44),
+                    bb.heightAnchor.constraint(equalToConstant: 44)
+                ])
+            } else {
+                NSLayoutConstraint.activate([
+                    bb.topAnchor.constraint(equalTo: topAnchor, constant: 20),
+                    bb.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
+                    bb.widthAnchor.constraint(equalToConstant: 44),
+                    bb.heightAnchor.constraint(equalToConstant: 44)
+                ])
+            }
+        }
+        
+        // Setup switch camera button with safe area
         if builder.showSwitchCameraButton {
-            addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|-[scb(50)]", options: [], metrics: nil, views: views))
-            addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "H:[scb(70)]|", options: [], metrics: nil, views: views))
+            if #available(iOS 11.0, *) {
+                NSLayoutConstraint.activate([
+                    scb.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 8),
+                    scb.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor),
+                    scb.widthAnchor.constraint(equalToConstant: 70),
+                    scb.heightAnchor.constraint(equalToConstant: 50)
+                ])
+            } else {
+                addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|-[scb(50)]", options: [], metrics: nil, views: views))
+                addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "H:[scb(70)]|", options: [], metrics: nil, views: views))
+            }
         }
         
+        // Setup toggle torch button with safe area
         if builder.showTorchButton {
-            addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|-[ttb(50)]", options: [], metrics: nil, views: views))
-            addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "H:|[ttb(70)]", options: [], metrics: nil, views: views))
+            if #available(iOS 11.0, *) {
+                NSLayoutConstraint.activate([
+                    ttb.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 8),
+                    ttb.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor),
+                    ttb.widthAnchor.constraint(equalToConstant: 70),
+                    ttb.heightAnchor.constraint(equalToConstant: 50)
+                ])
+            } else {
+                addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|-[ttb(50)]", options: [], metrics: nil, views: views))
+                addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "H:|[ttb(70)]", options: [], metrics: nil, views: views))
+            }
         }
         
         for attribute in Array<NSLayoutConstraint.Attribute>([.left, .top, .right, .bottom]) {
@@ -174,16 +247,20 @@ open class QRCodeReaderView: UIView, QRCodeReaderDisplayable {
             addSubview(ov)
         }
         
+        if let tl = titleLabel {
+            addSubview(tl)
+        }
+        
+        if let bb = backButton {
+            addSubview(bb)
+        }
+        
         if let scb = switchCameraButton {
             addSubview(scb)
         }
         
         if let ttb = toggleTorchButton {
             addSubview(ttb)
-        }
-        
-        if let cb = cancelButton {
-            addSubview(cb)
         }
         
         if let reader = reader {

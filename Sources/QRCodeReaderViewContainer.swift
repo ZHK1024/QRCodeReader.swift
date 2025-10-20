@@ -31,8 +31,11 @@ public protocol QRCodeReaderDisplayable {
     /// The view that display video as it is being captured by the camera.
     var cameraView: UIView { get }
     
-    /// A cancel button.
-    var cancelButton: UIButton? { get }
+    /// A title label.
+    var titleLabel: UILabel? { get }
+    
+    /// A back button.
+    var backButton: UIButton? { get }
     
     /// A switch camera button.
     var switchCameraButton: UIButton? { get }

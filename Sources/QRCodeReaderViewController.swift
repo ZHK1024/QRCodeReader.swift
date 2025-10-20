@@ -80,7 +80,7 @@ public class QRCodeReaderViewController: UIViewController {
             }
         }
         
-        setupUIComponentsWithCancelButtonTitle(builder.cancelButtonTitle)
+        setupUIComponents()
     }
     
     required public init?(coder aDecoder: NSCoder) {
@@ -119,7 +119,7 @@ public class QRCodeReaderViewController: UIViewController {
     
     // MARK: - Initializing the AV Components
     
-    private func setupUIComponentsWithCancelButtonTitle(_ cancelButtonTitle: String) {
+    private func setupUIComponents() {
         view.addSubview(builder.readerView.view)
         
         builder.readerView.view.translatesAutoresizingMaskIntoConstraints = false
@@ -129,8 +129,7 @@ public class QRCodeReaderViewController: UIViewController {
         
         builder.readerView.displayable.switchCameraButton?.addTarget(self, action: #selector(switchCameraAction), for: .touchUpInside)
         builder.readerView.displayable.toggleTorchButton?.addTarget(self, action: #selector(toggleTorchAction), for: .touchUpInside)
-        builder.readerView.displayable.cancelButton?.setTitle(cancelButtonTitle, for: .normal)
-        builder.readerView.displayable.cancelButton?.addTarget(self, action: #selector(cancelAction), for: .touchUpInside)
+        builder.readerView.displayable.backButton?.addTarget(self, action: #selector(backAction), for: .touchUpInside)
         
         // Setup constraints
         
@@ -155,7 +154,7 @@ public class QRCodeReaderViewController: UIViewController {
     
     // MARK: - Catching Button Events
     
-    @objc func cancelAction(_ button: UIButton) {
+    @objc func backAction(_ button: UIButton) {
         codeReader.stopScanning()
         
         if let _completionBlock = completionBlock {

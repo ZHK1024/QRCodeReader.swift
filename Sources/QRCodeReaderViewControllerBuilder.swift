@@ -41,11 +41,6 @@ open class QRCodeReaderViewControllerBuilder {
     public typealias QRCodeReaderViewControllerBuilderBlock = (QRCodeReaderViewControllerBuilder) -> Void
     
     /**
-     The title to use for the cancel button.
-     */
-    public var cancelButtonTitle = "Cancel"
-    
-    /**
      The code reader object used to scan the bar code.
      */
     public var reader = QRCodeReader()
@@ -59,11 +54,6 @@ open class QRCodeReaderViewControllerBuilder {
      Flag to know whether the view controller start scanning the codes when the view will appear.
      */
     public var startScanningAtLoad = true
-    
-    /**
-     Flag to display the cancel button.
-     */
-    public var showCancelButton = true
     
     /**
      Flag to display the switch camera button.
@@ -122,6 +112,17 @@ open class QRCodeReaderViewControllerBuilder {
             )
         }
     }
+    
+    // title bar
+    
+    /// 是否显示标题
+    public var showTitle: Bool = false
+    
+    /// 标题文本
+    public var titleText: String = "QR Code Scanner"
+    
+    /// 是否显示返回按钮
+    public var showBackButton: Bool = false
     
     // MARK: - Initializing a Flap View
     
