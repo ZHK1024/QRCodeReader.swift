@@ -12,7 +12,7 @@
 It provides a default view controller to display the camera view with the scan area overlay and it also provides a button to switch between the front and the back cameras.
 
 <p align="center">
-  <img src="http://yannickloriot.com/resources/qrcodereader.swift-screenshot.jpg" alt="QRCodeReader.swift screenshot">
+ <img width="400" alt="image" src="https://github.com/user-attachments/assets/b5fb5181-5c4c-47f4-abd8-35eeaecb3662" />
 </p>
 
 <p align="center">
